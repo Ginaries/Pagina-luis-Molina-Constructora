@@ -1,0 +1,13 @@
+node_modules/
+dist/
+test-results/
+playwright-report/
+.vite/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+asset-contact-sheet.jpg
+.qa/
+/assets Foto/
+/LM-Construction-web.zip
