@@ -152,6 +152,57 @@
   );
   if ($("#year")) $("#year").textContent = String(new Date().getFullYear());
 
+  function initializeTicker() {
+    const ticker = $(".ticker");
+    const track = $(".ticker-track");
+    const original = $(".ticker-set", track || document);
+    if (!ticker || !track || !original) return;
+
+    let frame;
+    let previousWidth = 0;
+    const fillTicker = () => {
+      frame = undefined;
+      const width = original.getBoundingClientRect().width;
+      if (!width) return;
+
+      // Keep a complete repetition beyond the viewport throughout the loop.
+      const copies = Math.max(2, Math.ceil(ticker.clientWidth / width) + 1);
+      while (track.children.length < copies) {
+        track.append(original.cloneNode(true));
+      }
+      while (track.children.length > copies) {
+        track.lastElementChild.remove();
+      }
+
+      if (width === previousWidth) return;
+      previousWidth = width;
+      const animation = track.getAnimations?.()[0];
+      const progress = animation?.effect.getComputedTiming().progress ?? 0;
+      const duration = width / 28;
+      track.style.setProperty("--ticker-distance", `${width}px`);
+      track.style.setProperty("--ticker-duration", `${duration}s`);
+      // Preserve the visible position when fonts or responsive sizes change.
+      const updatedAnimation = track.getAnimations?.()[0];
+      if (updatedAnimation)
+        updatedAnimation.currentTime = progress * duration * 1000;
+    };
+    const scheduleFill = () => {
+      if (frame === undefined) frame = window.requestAnimationFrame(fillTicker);
+    };
+
+    fillTicker();
+    if ("ResizeObserver" in window) {
+      const observer = new ResizeObserver(scheduleFill);
+      observer.observe(ticker);
+      observer.observe(original);
+    } else {
+      window.addEventListener("resize", scheduleFill, { passive: true });
+    }
+    document.fonts?.ready.then(scheduleFill);
+  }
+
+  initializeTicker();
+
   const motionToggle = $("#motion-toggle");
   motionToggle?.addEventListener("click", () => {
     const paused = document.body.classList.toggle("motion-paused");

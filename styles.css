@@ -847,7 +847,9 @@ h1 > span {
   display: flex;
   align-items: center;
   width: max-content;
-  animation: ticker 42s linear infinite;
+  white-space: nowrap;
+  animation: ticker var(--ticker-duration, 42s) linear infinite;
+  will-change: transform;
 }
 .ticker-set {
   display: flex;
@@ -867,10 +869,6 @@ h1 > span {
   font-style: normal;
   line-height: 1;
   color: var(--orange);
-}
-.ticker:hover .ticker-track,
-.ticker:focus-within .ticker-track {
-  animation-play-state: paused;
 }
 .motion-toggle {
   position: absolute;
@@ -1963,7 +1961,7 @@ select {
 }
 @keyframes ticker {
   to {
-    transform: translateX(-50%);
+    transform: translateX(calc(-1 * var(--ticker-distance, 50%)));
   }
 }
 @keyframes stamp-spin {
